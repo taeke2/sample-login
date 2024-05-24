@@ -3,23 +3,35 @@ package com.example.samplelogin.service;
 import com.example.samplelogin.entity.DemoUser;
 import com.example.samplelogin.repository.DemoUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
+
+    private final DemoUserRepository demoUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private DemoUserRepository demoUserRepository;
+    public UserService(DemoUserRepository demoUserRepository, PasswordEncoder passwordEncoder) {
+        this.demoUserRepository = demoUserRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Override
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        DemoUser user = demoUserRepository.findByUserId(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
 
-    public boolean validateUser(String username, String password) {
-        Optional<DemoUser> user = demoUserRepository.findByUserId(username);
-        return user.isPresent() && passwordEncoder.matches(password, user.get().getPassword());
+        return User.builder()
+                .username(user.getUserId())
+                .password(user.getPassword())
+                .authorities("USER") // 기본 권한을 "USER"로 설정
+                .build();
     }
 
     public void registerUser(String userId, String password) {
