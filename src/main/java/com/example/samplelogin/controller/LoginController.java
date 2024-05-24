@@ -1,6 +1,7 @@
 package com.example.samplelogin.controller;
 
 import com.example.samplelogin.dto.LoginRequest;
+import com.example.samplelogin.dto.TokenResponse;
 import com.example.samplelogin.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,7 +23,7 @@ public class LoginController {
     private JwtTokenProvider tokenProvider;
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest loginRequest) {
+    public TokenResponse login(@RequestBody LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -33,10 +34,12 @@ public class LoginController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            String jwt = tokenProvider.generateToken(authentication);
-            return jwt;
+            String accessToken = tokenProvider.generateAccessToken(authentication);
+            String refreshToken = tokenProvider.generateRefreshToken(authentication);
+
+            return new TokenResponse(accessToken, refreshToken);
         } catch (AuthenticationException e) {
-            return "fail";
+            return new TokenResponse("fail", "fail");
         }
     }
 }

@@ -21,4 +21,5 @@ logging.level:
 
 jwt:
   secret: uB8vZ5lP1a0Nh9k5T5lZkzMkgAB8vZ5lP1a0Nh9k5T5lZkzMkg5J7T7w2EJNxR8g
-  expiration: 604800000 # 1 week in milliseconds
+  access-token-expiration: 3600000 # 1 hour in milliseconds
+  refresh-token-expiration: 604800000 # 1 week in milliseconds
