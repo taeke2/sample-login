@@ -69,8 +69,12 @@ public class JwtTokenProvider {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            // Handle expired token case
+            System.out.println("Expired JWT token");
+        } catch (io.jsonwebtoken.JwtException e) {
+            // Handle other JWT exceptions
+            System.out.println("Invalid JWT token");
         }
         return false;
     }
